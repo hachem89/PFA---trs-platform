@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  mqtt:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  node-red:
+    image: nodered/node-red
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./node-red:/data
+    depends_on:
+      - mqtt
