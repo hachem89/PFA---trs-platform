@@ -1,22 +1,25 @@
-import time
-import random
 import json
+import random
+import time
 import paho.mqtt.client as mqtt
 
 client = mqtt.Client()
-client.connect("127.0.0.1", 1883, 60)
-client.loop_start() 
+client.connect("mqtt", 1883, 60)
 
 TOPIC = "client/client1/factory/f1/machine/m1/camera"
 
-while True:
-    data = {
-        # "device_id": "raspi_abc123",
-        "class": random.choice(["good", "bad"]),
-        "confidence": round(random.uniform(0.7, 1.0), 2)
-    }
 
-    client.publish(TOPIC, json.dumps(data))
-    print("Sent:", data)
+def run_camera(loop=False):
+    while True:
+        data = {
+            "class": random.choice(["good", "bad"]),
+            "confidence": round(random.uniform(0.7, 1.0), 2)
+        }
 
-    time.sleep(3)
+        client.publish(TOPIC, json.dumps(data))
+        print("CAMERA:", data)
+
+        if not loop:
+            break
+
+        time.sleep(3)

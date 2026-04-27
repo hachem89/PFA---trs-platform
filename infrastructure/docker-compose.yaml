@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mqtt:
     image: eclipse-mosquitto
@@ -14,5 +12,13 @@ services:
       - "1880:1880"
     volumes:
       - ./node-red:/data
+    depends_on:
+      - mqtt
+
+  simulation:
+    build: ../simulations/raw-data-generator
+    container_name: simulation
+    environment:
+      - GENERATOR_MODE=all
     depends_on:
       - mqtt
