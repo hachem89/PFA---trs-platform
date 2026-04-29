@@ -14,6 +14,9 @@ services:
       - ./node-red:/data
     depends_on:
       - mqtt
+    environment:
+      - API_KEY=${API_KEY}
+      - INGESTION_URL=http://ingestion-service:5001/ingest
 
   simulation:
     build: ../simulations/raw-data-generator
@@ -22,3 +25,30 @@ services:
       - GENERATOR_MODE=all
     depends_on:
       - mqtt
+
+  dashboard-service:
+    build: ../services/dashboard-service
+    ports:
+      - "5000:5000"
+    env_file:
+      - ../.env
+    volumes:
+      - ../shared:/app/shared
+
+  ingestion-service:
+    build: ../services/ingestion-service
+    ports:
+      - "5001:5001"
+    env_file:
+      - ../.env
+    volumes:
+      - ../shared:/app/shared
+
+  kpi-service:
+    build: ../services/kpi-service
+    ports:
+      - "5002:5002"
+    env_file:
+      - ../.env
+    volumes:
+      - ../shared:/app/shared

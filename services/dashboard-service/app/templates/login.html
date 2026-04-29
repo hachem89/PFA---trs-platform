@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRS IoT — Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #0d1117; padding: 20px; }
+        .auth-container { width: 100%; max-width: 400px; }
+        .auth-card { background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 32px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .auth-logo { text-align: center; font-family: 'Space Mono', monospace; font-size: 24px; color: #58a6ff; letter-spacing: 2px; margin-bottom: 8px; }
+        .auth-subtitle { text-align: center; color: #8b949e; font-size: 13px; margin-bottom: 32px; }
+        .auth-tabs { display: flex; border-bottom: 1px solid #21262d; margin-bottom: 24px; }
+        .auth-tab { flex: 1; text-align: center; padding: 12px; color: #8b949e; cursor: pointer; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .auth-tab.active { color: #e6edf3; border-bottom: 2px solid #58a6ff; }
+        .form-section { display: none; }
+        .form-section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .error-msg { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.4); color: #f85149; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; text-align: center; }
+        .btn-full { width: 100%; justify-content: center; padding: 10px; margin-top: 8px; }
+        .step-indicator { font-size: 12px; color: #8b949e; text-align: center; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-logo">TRS · IOT</div>
+        <div class="auth-subtitle">Industrial Performance Platform</div>
+        
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchTab('login')" id="tab-login">Sign In</div>
+                <div class="auth-tab" onclick="switchTab('register')" id="tab-register">Register</div>
+            </div>
+
+            {% if error %}
+            <div class="error-msg">{{ error }}</div>
+            {% endif %}
+
+            <!-- LOGIN FORM -->
+            <form id="login-form" class="form-section active" method="POST" action="/login">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-input" required placeholder="contact@entreprise.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-input" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="register-form" class="form-section" method="POST" action="/register">
+                <!-- Step 1: Personal Info -->
+                <div id="step-1">
+                    <div class="step-indicator">Step 1 of 3 : Your Profile</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="prenom" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="nom" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-input" required minlength="6">
+                    </div>
+                    <button type="button" class="btn btn-primary btn-full" onclick="nextStep(2)">Continue →</button>
+                </div>
+
+                <!-- Step 2: Company Info -->
+                <div id="step-2" style="display: none;">
+                    <div class="step-indicator">Step 2 of 3 : Your Company</div>
+                    <div class="form-group">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" name="entreprise" class="form-input" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="telephone" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sector</label>
+                            <select name="secteur" class="form-select">
+                                <option>Agri-food</option>
+                                <option>Textile</option>
+                                <option>Mechanical</option>
+                                <option>Electronics</option>
+                                <option>Chemical</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Main Factory Name</label>
+                        <input type="text" name="usine_nom" class="form-input" required placeholder="e.g. Tunis Factory">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input type="text" name="usine_ville" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Country</label>
+                            <select name="usine_pays" class="form-select">
+                                <option>Tunisia</option>
+                                <option>Algeria</option>
+                                <option>Morocco</option>
+                                <option>France</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button type="button" class="btn btn-secondary" onclick="nextStep(1)">← Back</button>
+                        <button type="button" class="btn btn-primary" style="flex:1;" onclick="nextStep(3)">Continue →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: First Machine -->
+                <div id="step-3" style="display: none;">
+                    <div class="step-indicator">Step 3 of 3 : Add your first machine</div>
+                    <div class="form-group">
+                        <label class="form-label">Machine Name</label>
+                        <input type="text" name="machine_nom_0" class="form-input" required placeholder="e.g. Filling Line 1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Theoretical Speed (parts/min)</label>
+                        <input type="number" name="machine_cadence_0" class="form-input" required placeholder="50" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Delay between measurements (s)</label>
+                        <input type="number" name="machine_delai_0" class="form-input" required value="60" min="1">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Vibration Threshold</label>
+                            <input type="number" name="machine_seuil_vibration_0" class="form-input" required value="0.0" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CM Part Threshold</label>
+                            <input type="number" name="machine_seuil_piece_cm_0" class="form-input" required value="0.0" step="0.1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button type="button" class="btn btn-secondary" onclick="nextStep(2)">← Back</button>
+                        <button type="submit" class="btn btn-primary" style="flex:1;">Complete Registration</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.getElementById('tab-login').classList.remove('active');
+            document.getElementById('tab-register').classList.remove('active');
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('register-form').classList.remove('active');
+            
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById(tab + '-form').classList.add('active');
+        }
+
+        function nextStep(step) {
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('step-2').style.display = 'none';
+            document.getElementById('step-3').style.display = 'none';
+            document.getElementById('step-' + step).style.display = 'block';
+        }
+    </script>
+</body>
+</html>

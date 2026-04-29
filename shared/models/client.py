@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy import Column, String, TIMESTAMP
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from shared.database import Base
 
 
@@ -22,6 +23,7 @@ class Client(Base):
 
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
-    usines = Base.relationship(
+    factories = relationship(
         "Factory", backref="client", lazy=True, cascade="all, delete-orphan"
     )
+    devices = relationship("Device", backref="owner", lazy=True)

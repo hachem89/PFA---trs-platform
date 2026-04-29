@@ -1,54 +1,83 @@
-from flask import Blueprint, jsonify, request
-from datetime import datetime
-from app.config import Config
+from flask import Blueprint, request, jsonify
 from app.db import db
-from shared.models.kpi_snapshot import KpiSnapshot
-from shared.models.machine import Machine
+from app.models import Machine, Event
+from app.config import Config
+from datetime import datetime
 
-# ── Blueprint ──────────────────────────────────────────────
 ingest_bp = Blueprint("ingest", __name__)
 
-# ── IoT Ingestion (Node-RED / Raspberry Pi) ───────────────
-
-@ingest_bp.route("/ingest/machine/<int:machine_id>", methods=["POST"])
-def ingest_machine_data(machine_id):
+@ingest_bp.route("/ingest", methods=["POST"])
+def ingest_data():
     """
-    Endpoint for Raspberry Pi / Node-RED to push real-time data.
+    Endpoint for Node-RED / Raspberry Pi to push real-time event data.
     X-API-KEY header is required for security.
+    Payload schema:
+    {
+        "machine_id": "uuid",
+        "event_type": "piece_detected" | "state_change" | "sensor_reading",
+        "timestamp": "ISO8601 string" (optional, defaults to now),
+        "metadata": { ... }
+    }
     """
-    # 1. Security Check
     if request.headers.get("X-API-KEY") != Config.API_KEY:
         return jsonify({"error": "Unauthorized: Invalid API Key"}), 403
 
-    # 2. Get Machine
-    machine = db.session.get(Machine, machine_id)
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON payload"}), 400
+
+    machine_id = data.get("machine_id")
+    event_type = data.get("event_type")
+    event_metadata = data.get("metadata", {})
+    timestamp_str = data.get("timestamp")
+
+    if not machine_id or not event_type:
+        return jsonify({"error": "Missing machine_id or event_type"}), 400
+
+    # Handle legacy 'm1' from simulation
+    if machine_id == "m1":
+        machine = Machine.query.first()
+        if not machine:
+            return jsonify({"error": "No machines configured in database"}), 404
+        machine_id = str(machine.id)
+    else:
+        try:
+            machine = db.session.get(Machine, machine_id)
+        except Exception:
+            machine = None
+
     if not machine:
         return jsonify({"error": "Machine not found"}), 404
 
-    # 3. Parse and Update Current State
-    data = request.get_json()
-    machine.trs = data.get("trs", machine.trs)
-    machine.tdo = data.get("tdo", machine.tdo)
-    machine.tp = data.get("tp", machine.tp)
-    machine.tq = data.get("tq", machine.tq)
-    machine.status = data.get("status", "online")
+    # Parse timestamp or use current time
+    if timestamp_str:
+        try:
+            event_timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+            # remove tzinfo so it can be saved in naive timestamp column usually used by SQLAlchemy
+            event_timestamp = event_timestamp.replace(tzinfo=None)
+        except ValueError:
+            event_timestamp = datetime.utcnow()
+    else:
+        event_timestamp = datetime.utcnow()
 
-    # 4. Hourly Snapshot Logic
-    # We only save a history record if the last one was more than 1 hour ago
-    last_record = KpiSnapshot.query.filter_by(machine_id=machine.id).order_by(KpiSnapshot.recorded_at.desc()).first()
-    now = datetime.utcnow()
-
-    if not last_record or (now - last_record.recorded_at).total_seconds() >= 3600:
-        new_history = KpiSnapshot(
-            machine_id=machine.id,
-            trs=machine.trs,
-            tdo=machine.tdo,
-            tp=machine.tp,
-            tq=machine.tq,
-            recorded_at=now
-        )
-        db.session.add(new_history)
+    # Create event
+    event = Event(
+        machine_id=machine.id,
+        event_type=event_type,
+        timestamp=event_timestamp,
+        event_metadata=event_metadata
+    )
+    
+    db.session.add(event)
+    
+    # Update machine status immediately for responsiveness
+    if event_type == "state_change":
+        new_status = event_metadata.get("state")
+        if new_status:
+            machine.status = new_status
+    elif event_type in ["piece_detected", "sensor_reading"]:
+        machine.status = "online"
 
     db.session.commit()
-    return jsonify({"status": "ok"})
-
+    
+    return jsonify({"status": "ok", "event_id": str(event.id)}), 201

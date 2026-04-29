@@ -1,0 +1,62 @@
+/* Analysis page styles */
+
+.analysis-controls {
+    display: flex; gap: 12px; align-items: center;
+    flex-wrap: wrap; margin-bottom: 24px;
+}
+.control-group { display: flex; align-items: center; gap: 8px; }
+.control-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.control-select {
+    padding: 7px 12px; background: var(--bg-secondary);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-primary); font-size: 13px;
+    font-family: 'Inter', sans-serif;
+}
+.control-select:focus { outline: none; border-color: var(--blue); }
+.control-select option { background: var(--bg-secondary); }
+
+.chart-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px;
+    margin-bottom: 20px;
+}
+.chart-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.chart-subtitle { font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; }
+.chart-wrapper { position: relative; height: 350px; }
+
+.stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 24px;
+}
+.stat-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; text-align: center;
+}
+.stat-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px; font-weight: 700; margin-bottom: 4px;
+}
+.stat-label {
+    font-size: 10px; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.8px;
+}
+
+.metric-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.metric-chip {
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--text-secondary);
+    transition: all 0.2s; font-family: 'Inter', sans-serif;
+}
+.metric-chip:hover { border-color: var(--text-secondary); }
+.metric-chip.active { border-color: var(--blue); color: var(--blue); background: rgba(88,166,255,0.1); }
+
+.compare-chart-wrapper { position: relative; height: 300px; }
+
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-wrapper { height: 250px; }
+}

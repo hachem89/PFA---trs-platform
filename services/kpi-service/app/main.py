@@ -1,6 +1,7 @@
 from flask import Flask
 from app.db import db
 from app.config import Config
+from app.scheduler import run_scheduler
 
 def create_app():
     app = Flask(__name__)
@@ -8,11 +9,15 @@ def create_app():
 
     db.init_app(app)
 
-    from kpi_engine import kpi_engine_bp
-    app.register_blueprint(kpi_engine_bp)
+    # Start the KPI scheduler background thread
+    run_scheduler(app)
+
+    # A simple health check route
+    @app.route("/health")
+    def health():
+        return {"status": "healthy"}
 
     return app
-
 
 app = create_app()
 

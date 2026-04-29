@@ -1,0 +1,43 @@
+/* Settings page styles */
+
+.settings-section { margin-bottom: 32px; }
+.section-bar {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 16px;
+}
+.section-bar h2 { font-size: 16px; font-weight: 600; }
+
+.usine-block {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px; margin-bottom: 16px; overflow: hidden;
+}
+.usine-block-header {
+    display: flex; justify-content: space-between;
+    align-items: center; padding: 16px 20px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.2s;
+}
+.usine-block-header:hover { background: rgba(88,166,255,0.05); }
+.usine-block-title { display: flex; align-items: center; gap: 12px; }
+.usine-block-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.usine-block-info { font-size: 12px; color: var(--text-secondary); }
+.usine-block-actions { display: flex; gap: 6px; }
+.usine-block-body { padding: 16px 20px; }
+.machines-table-wrap { overflow-x: auto; }
+.add-machine-row {
+    display: flex; justify-content: center;
+    padding: 12px; border-top: 1px solid var(--border);
+}
+.empty-machines {
+    text-align: center; padding: 32px;
+    color: var(--text-secondary); font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .usine-block-header {
+        flex-direction: column; align-items: flex-start; gap: 12px;
+    }
+    .usine-block-actions { align-self: flex-end; }
+}

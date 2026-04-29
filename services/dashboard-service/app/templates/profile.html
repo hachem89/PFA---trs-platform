@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-grid">
+    <!-- Left sidebar -->
+    <div class="profile-sidebar">
+        <div class="profile-avatar" id="avatar-initials">{{ client.firstname[0] }}{{ client.lastname[0] }}</div>
+        <div class="profile-name" id="display-name">{{ client.firstname }} {{ client.lastname }}</div>
+        <div class="profile-email">{{ client.email }}</div>
+        <div style="margin-bottom: 16px;">
+            <span class="badge badge-green">Active</span>
+        </div>
+        <div class="profile-meta">
+            <div class="profile-meta-item">
+                <span class="profile-meta-label">Company</span>
+                <span class="profile-meta-value" id="display-entreprise">{{ client.entreprise or '—' }}</span>
+            </div>
+            <div class="profile-meta-item">
+                <span class="profile-meta-label">Sector</span>
+                <span class="profile-meta-value" id="display-secteur">{{ client.sector or '—' }}</span>
+            </div>
+            <div class="profile-meta-item">
+                <span class="profile-meta-label">Factories</span>
+                <span class="profile-meta-value">{{ client.factories | length }}</span>
+            </div>
+            <div class="profile-meta-item">
+                <span class="profile-meta-label">Machines</span>
+                <span class="profile-meta-value">
+                    {% set total = [] %}
+                    {% for u in client.factories %}{% for m in u.machines %}{% if total.append(1) %}{% endif %}{% endfor %}{% endfor %}
+                    {{ total | length }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right forms -->
+    <div class="profile-forms">
+        <!-- Personal Info -->
+        <div class="profile-card">
+            <div class="profile-card-title">
+                👤 Personal Information
+                <span class="save-indicator" id="info-saved">✅ Saved</span>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input class="form-input" id="edit-prenom" value="{{ client.firstname or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input class="form-input" id="edit-nom" value="{{ client.lastname or '' }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input class="form-input" id="edit-telephone" value="{{ client.phone_number or '' }}" placeholder="+216 XX XXX XXX">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Company</label>
+                    <input class="form-input" id="edit-entreprise" value="{{ client.entreprise or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sector</label>
+                    <select class="form-select" id="edit-secteur">
+                        <option value="">Choose...</option>
+                        {% for s in ['Agri-food', 'Textile', 'Mechanical', 'Electronics', 'Chemical', 'Other'] %}
+                        <option {% if client.sector == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveProfile()" style="margin-top:8px;">
+                💾 Save changes
+            </button>
+        </div>
+
+        <!-- Password Change -->
+        <div class="profile-card">
+            <div class="profile-card-title">
+                🔒 Change Password
+                <span class="save-indicator" id="pwd-saved">✅ Saved</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input class="form-input" type="password" id="current-password" placeholder="••••••••">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input class="form-input" type="password" id="new-password" placeholder="Min. 8 characters">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm</label>
+                    <input class="form-input" type="password" id="confirm-password" placeholder="••••••••">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="changePassword()" style="margin-top:8px;">
+                🔒 Update Password
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

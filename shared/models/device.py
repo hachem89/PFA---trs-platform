@@ -4,6 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from shared.database import Base
 
+
 class Device(Base):
     __tablename__ = "devices"
 
@@ -17,7 +18,3 @@ class Device(Base):
     status = Column(String, default="offline")
     last_seen = Column(TIMESTAMP(timezone=True))
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
-
-    # Optional relationships
-    client = Base.relationship("Client", backref="devices")
-    factory = Base.relationship("Factory", backref="devices")

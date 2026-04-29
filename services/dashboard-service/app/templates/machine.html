@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Machine Details{% endblock %}
+{% block page_title %}Machine View{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/machine.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="loader" class="loader-container">
+    Loading machine data...
+</div>
+
+<div id="machine-content" style="display: none;">
+    <a href="/dashboard" class="btn btn-secondary btn-sm" style="margin-bottom: 16px;">← Back to dashboard</a>
+    
+    <!-- Header -->
+    <div class="card machine-header">
+        <div class="flex-between">
+            <div>
+                <div class="machine-title" id="m-nom">—</div>
+                <div class="machine-subtitle">Factory: <span id="m-usine">—</span></div>
+            </div>
+            <div class="badge badge-live" id="m-status-badge">
+                <span class="status-dot offline" id="m-status-dot"></span>
+                <span id="m-status-text">OFFLINE</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs Gauges -->
+    <div class="gauges-row">
+        <!-- Main TRS -->
+        <div class="card kpi-gauge-card main-kpi">
+            <div class="gauge-header">TRS (Overall Equipment Effectiveness)</div>
+            <div class="gauge-chart-container main">
+                <canvas id="gauge-trs"></canvas>
+                <div class="gauge-value" id="m-trs-val" style="font-size: 28px;">—</div>
+            </div>
+        </div>
+        <!-- TDO -->
+        <div class="card kpi-gauge-card">
+            <div class="gauge-header">TDO (Availability)</div>
+            <div class="gauge-chart-container">
+                <canvas id="gauge-tdo"></canvas>
+                <div class="gauge-value" id="m-tdo-val">—</div>
+            </div>
+        </div>
+        <!-- TP -->
+        <div class="card kpi-gauge-card">
+            <div class="gauge-header">TP (Performance)</div>
+            <div class="gauge-chart-container">
+                <canvas id="gauge-tp"></canvas>
+                <div class="gauge-value" id="m-tp-val">—</div>
+            </div>
+        </div>
+        <!-- TQ -->
+        <div class="card kpi-gauge-card">
+            <div class="gauge-header">TQ (Quality)</div>
+            <div class="gauge-chart-container">
+                <canvas id="gauge-tq"></canvas>
+                <div class="gauge-value" id="m-tq-val">—</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Section -->
+    <div class="grid-2 mt-24">
+        <!-- Production Data (Mock from Node-RED) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Production Data (Node-RED)</div>
+            </div>
+            <div class="production-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Good Parts (OK)</div>
+                    <div class="stat-value c-green" id="m-pieces-ok">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Rejected Parts (Scrap)</div>
+                    <div class="stat-value c-red" id="m-pieces-rebus">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Current Cycle Time</div>
+                    <div class="stat-value" id="m-cycle-time">— <span style="font-size: 13px; color: var(--text-secondary);">s/part</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Theoretical Speed</div>
+                    <div class="stat-value c-blue" id="m-cadence">— <span style="font-size: 13px; color: var(--text-secondary);">parts/min</span></div>
+                </div>
+            </div>
+            
+            <!-- Extra Node Red Env mock -->
+            <div class="card-header" style="margin-top: 24px;">
+                <div class="card-title">Machine Environment (IoT)</div>
+            </div>
+            <div class="production-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Motor Temperature</div>
+                    <div class="stat-value" id="m-temp">— <span style="font-size: 13px; color: var(--text-secondary);">°C</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Vibration Level</div>
+                    <div class="stat-value" id="m-vib">— <span style="font-size: 13px; color: var(--text-secondary);">mm/s</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sensor Health -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Configured Sensors Status</div>
+                <div class="badge badge-green" id="m-sensor-health">Optimal</div>
+            </div>
+            <ul class="sensor-list">
+                <li class="sensor-item">
+                    <div class="sensor-info flex-align-center gap-12">
+                        <div class="sensor-icon">🔄</div>
+                        <div>
+                            <div class="sensor-name">Speed & Cadence</div>
+                            <div class="sensor-type" id="s-type-vit">—</div>
+                        </div>
+                    </div>
+                    <div class="sensor-status c-green">Active</div>
+                </li>
+                <li class="sensor-item">
+                    <div class="sensor-info flex-align-center gap-12">
+                        <div class="sensor-icon">📸</div>
+                        <div>
+                            <div class="sensor-name">Part Counting</div>
+                            <div class="sensor-type" id="s-type-pcs">—</div>
+                        </div>
+                    </div>
+                    <div class="sensor-status c-green">Active</div>
+                </li>
+                <li class="sensor-item">
+                    <div class="sensor-info flex-align-center gap-12">
+                        <div class="sensor-icon">⚡</div>
+                        <div>
+                            <div class="sensor-name">Electrical Availability</div>
+                            <div class="sensor-type" id="s-type-disp">—</div>
+                        </div>
+                    </div>
+                    <div class="sensor-status c-green">Active</div>
+                </li>
+                <li class="sensor-item">
+                    <div class="sensor-info flex-align-center gap-12">
+                        <div class="sensor-icon">🔍</div>
+                        <div>
+                            <div class="sensor-name">Quality Inspection</div>
+                            <div class="sensor-type" id="s-type-qual">—</div>
+                        </div>
+                    </div>
+                    <div class="sensor-status c-green">Active</div>
+                </li>
+            </ul>
+            <div style="margin-top:20px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                <p><strong>Note:</strong> This simulated information will be replaced by the real MQTT stream (Node-RED) using the API ingestion setup.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const MACHINE_ID = "{{ machine_id }}";
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/machine.js') }}"></script>
+{% endblock %}
