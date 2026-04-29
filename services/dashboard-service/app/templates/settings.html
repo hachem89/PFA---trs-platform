@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Usines & Machines{% endblock %}
+{% block page_title %}Gestion des Usines & Machines{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Usines Section -->
+<div class="settings-section">
+    <div class="section-bar">
+        <h2>🏭 Vos Usines</h2>
+        <button class="btn btn-primary" onclick="openUsineModal()">+ Ajouter une usine</button>
+    </div>
+    <div id="usines-list">
+        <div class="empty-machines">Chargement...</div>
+    </div>
+</div>
+
+<!-- ═══ USINE MODAL ═══ -->
+<div class="modal-overlay" id="usine-modal">
+    <div class="modal">
+        <div class="modal-title" id="usine-modal-title">Ajouter une usine</div>
+        <input type="hidden" id="usine-edit-id">
+        <div class="form-group">
+            <label class="form-label">Nom de l'usine</label>
+            <input class="form-input" id="usine-nom" placeholder="Usine Tunis">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Ville</label>
+                <input class="form-input" id="usine-ville" placeholder="Tunis">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Pays</label>
+                <select class="form-select" id="usine-pays">
+                    <option>Tunisie</option>
+                    <option>Algérie</option>
+                    <option>Maroc</option>
+                    <option>France</option>
+                    <option>Autre</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Postes / jour</label>
+                <select class="form-select" id="usine-postes">
+                    <option value="1">1 poste (8h)</option>
+                    <option value="2">2 postes (16h)</option>
+                    <option value="3">3 postes (24h)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Temps requis Tr (h)</label>
+                <input class="form-input" type="number" id="usine-tr" value="8" min="1" max="24">
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeUsineModal()">Annuler</button>
+            <button class="btn btn-primary" onclick="saveUsine()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MACHINE MODAL ═══ -->
+<div class="modal-overlay" id="machine-modal">
+    <div class="modal">
+        <div class="modal-title" id="machine-modal-title">Ajouter une machine</div>
+        <input type="hidden" id="machine-edit-id">
+        <input type="hidden" id="machine-usine-id">
+        <div class="form-group">
+            <label class="form-label">Nom de la machine</label>
+            <input class="form-input" id="machine-nom" placeholder="Machine de découpe">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Cadence théorique (pièces/min)</label>
+            <input class="form-input" type="number" id="machine-cadence" placeholder="50" min="1" step="0.1">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Seuil Vibration</label>
+                <input class="form-input" type="number" id="machine-seuil-vibration" placeholder="0.0" step="0.1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Seuil Pièce CM</label>
+                <input class="form-input" type="number" id="machine-seuil-piece-cm" placeholder="0.0" step="0.1">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Délai entre mesures (s)</label>
+            <input class="form-input" type="number" id="machine-delai" placeholder="60" min="1">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Capteur vitesse</label>
+                <select class="form-select" id="machine-capteur-vitesse">
+                    <option value="hall">Hall effect</option>
+                    <option value="encodeur">Encodeur</option>
+                    <option value="inductif">Inductif</option>
+                    <option value="simulation">Simulation</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Capteur pièces</label>
+                <select class="form-select" id="machine-capteur-pieces">
+                    <option value="ultrason">Ultrason HC-SR04</option>
+                    <option value="barrage">Barrage optique</option>
+                    <option value="camera">Caméra USB</option>
+                    <option value="simulation">Simulation</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Capteur disponibilité</label>
+                <select class="form-select" id="machine-capteur-dispo">
+                    <option value="adxl345">ADXL345 (vibration)</option>
+                    <option value="courant">Capteur courant</option>
+                    <option value="simulation">Simulation</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Capteur qualité</label>
+                <select class="form-select" id="machine-capteur-qualite">
+                    <option value="camera">Caméra + IA</option>
+                    <option value="manuel">Saisie manuelle</option>
+                    <option value="simulation">Simulation</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeMachineModal()">Annuler</button>
+            <button class="btn btn-primary" onclick="saveMachine()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ CONFIRM MODAL ═══ -->
+<div class="modal-overlay" id="confirm-modal">
+    <div class="modal" style="max-width:400px;">
+        <div class="modal-title">⚠️ Confirmation</div>
+        <p id="confirm-message" style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;"></p>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeConfirm()">Annuler</button>
+            <button class="btn btn-danger" id="confirm-btn" onclick="">Supprimer</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

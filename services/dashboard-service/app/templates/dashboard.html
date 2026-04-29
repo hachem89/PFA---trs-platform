@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Vue d'ensemble{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- KPI Cards -->
+<div class="grid-4" id="kpi-grid">
+    <div class="kpi-card bl-green">
+        <div class="kpi-label">TRS Moyen Global</div>
+        <div class="kpi-value c-green" id="kpi-trs">—</div>
+        <div class="kpi-sub">Objectif &gt; 85%</div>
+    </div>
+    <div class="kpi-card bl-blue">
+        <div class="kpi-label">Usines actives</div>
+        <div class="kpi-value c-blue" id="kpi-usines">—</div>
+        <div class="kpi-sub">Sites de production</div>
+    </div>
+    <div class="kpi-card bl-purple">
+        <div class="kpi-label">Machines totales</div>
+        <div class="kpi-value c-purple" id="kpi-machines">—</div>
+        <div class="kpi-sub">Équipements suivis</div>
+    </div>
+    <div class="kpi-card bl-red">
+        <div class="kpi-label">Alertes</div>
+        <div class="kpi-value c-red" id="kpi-alerts">—</div>
+        <div class="kpi-sub">Machines TRS &lt; 70%</div>
+    </div>
+</div>
+
+<!-- Machine Gauges Section -->
+<div class="section-header">
+    <div class="flex-align-center gap-12">
+        <div>
+            <div class="section-title">Performance des Machines</div>
+            <div class="section-subtitle">TRS · TDO · TP · TQ en temps réel</div>
+        </div>
+        <div class="badge badge-live">
+            <span class="status-dot online pulse"></span>
+            LIVE
+        </div>
+    </div>
+    <div class="usine-chips" id="usine-filter"></div>
+</div>
+
+<div class="gauges-grid" id="gauges-grid">
+    <div class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <h3>Chargement...</h3>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

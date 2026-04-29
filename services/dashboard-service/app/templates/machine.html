@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Détails Machine{% endblock %}
+{% block page_title %}
+    <a href="/dashboard" class="btn btn-secondary btn-icon" style="margin-right: 12px; font-size: 13px; text-decoration: none;">←</a> Supervision Machine
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/machine.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="machine-loader" class="loader-container">
+    <div class="loader">Chargement...</div>
+</div>
+
+<div id="machine-content" style="display: none;">
+    <!-- Header Section -->
+    <div class="machine-header card">
+        <div class="flex-between">
+            <div class="flex-align-center gap-12">
+                <div>
+                    <h1 class="machine-title" id="m-nom">—</h1>
+                    <p class="machine-subtitle">📍 <span id="m-usine">—</span></p>
+                </div>
+            </div>
+            <div class="machine-badges flex-align-center gap-12">
+                <div class="badge badge-live">
+                    <span class="status-dot online pulse"></span>
+                    LIVE
+                </div>
+                <div class="badge" id="m-status-badge">
+                    <span class="status-dot" id="m-status-dot"></span>
+                    <span id="m-status-text">OFFLINE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs Section -->
+    <div class="section-title mt-24">Indicateurs de Performance</div>
+    <div class="gauges-row">
+        <!-- TRS Main -->
+        <div class="card kpi-gauge-card main-kpi">
+            <div class="gauge-header">
+                <div class="kpi-gauge-label">TRS Global</div>
+                <div class="badge" id="m-trs-badge">N/A</div>
+            </div>
+            <div class="gauge-chart-container main">
+                <canvas id="gauge-trs"></canvas>
+                <div class="gauge-value" id="m-trs-val" style="font-size: 32px;">—</div>
+            </div>
+        </div>
+        <!-- TDO -->
+        <div class="card kpi-gauge-card">
+            <div class="gauge-header">TDO (Dispo)</div>
+            <div class="gauge-chart-container">
+                <canvas id="gauge-tdo"></canvas>
+                <div class="gauge-value" id="m-tdo-val">—</div>
+            </div>
+        </div>
+        <!-- TP -->
+        <div class="card kpi-gauge-card">
+            <div class="gauge-header">TP (Perf)</div>
+            <div class="gauge-chart-container">
+                <canvas id="gauge-tp"></canvas>
+                <div class="gauge-value" id="m-tp-val">—</div>
+            </div>
+        </div>
+        <!-- TQ -->
+        <div class="card kpi-gauge-card">
+            <div class="gauge-header">TQ (Qualité)</div>
+            <div class="gauge-chart-container">
+                <canvas id="gauge-tq"></canvas>
+                <div class="gauge-value" id="m-tq-val">—</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Section -->
+    <div class="grid-2 mt-24">
+        <!-- Production Data (Mock from Node-RED) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Données de Production (Node-RED)</div>
+            </div>
+            <div class="production-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Pièces Bonnes (OK)</div>
+                    <div class="stat-value c-green" id="m-pieces-ok">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Pièces Rejetées (Rebuts)</div>
+                    <div class="stat-value c-red" id="m-pieces-rebus">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Temps de Cycle Actuel</div>
+                    <div class="stat-value" id="m-cycle-time">— <span style="font-size: 13px; color: var(--text-secondary);">s/pièce</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Cadence Théorique</div>
+                    <div class="stat-value c-blue" id="m-cadence">— <span style="font-size: 13px; color: var(--text-secondary);">pcs/min</span></div>
+                </div>
+            </div>
+            
+            <!-- Extra Node Red Env mock -->
+            <div class="card-header" style="margin-top: 24px;">
+                <div class="card-title">Environnement Machine (IoT)</div>
+            </div>
+            <div class="production-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Température Moteur</div>
+                    <div class="stat-value" id="m-temp">— <span style="font-size: 13px; color: var(--text-secondary);">°C</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Niveau de Vibration</div>
+                    <div class="stat-value" id="m-vib">— <span style="font-size: 13px; color: var(--text-secondary);">mm/s</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sensor Health -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">État des Capteurs Configurés</div>
+                <div class="badge badge-green" id="m-sensor-health">Optimal</div>
+            </div>
+            <ul class="sensor-list">
+                <li class="sensor-item">
+                    <div class="sensor-info flex-align-center gap-12">
+                        <div class="sensor-icon">🔄</div>
+                        <div>
+                            <div class="sensor-name">Vitesse & Cadence</div>
+                            <div class="sensor-type" id="s-type-vit">—</div>
+                        </div>
+                    </div>
+                    <div class="sensor-status c-green">Actif</div>
+                </li>
+                <li class="sensor-item">
+                    <div class="sensor-info flex-align-center gap-12">
+                        <div class="sensor-icon">📸</div>
+                        <div>
+                            <div class="sensor-name">Comptage Pièces</div>
+                            <div class="sensor-type" id="s-type-pcs">—</div>
+                        </div>
+                    </div>
+                    <div class="sensor-status c-green">Actif</div>
+                </li>
+                <li class="sensor-item">
+                    <div class="sensor-info flex-align-center gap-12">
+                        <div class="sensor-icon">⚡</div>
+                        <div>
+                            <div class="sensor-name">Disponibilité Électrique</div>
+                            <div class="sensor-type" id="s-type-disp">—</div>
+                        </div>
+                    </div>
+                    <div class="sensor-status c-green">Actif</div>
+                </li>
+                <li class="sensor-item">
+                    <div class="sensor-info flex-align-center gap-12">
+                        <div class="sensor-icon">🔍</div>
+                        <div>
+                            <div class="sensor-name">Inspection Qualité</div>
+                            <div class="sensor-type" id="s-type-qual">—</div>
+                        </div>
+                    </div>
+                    <div class="sensor-status c-green">Actif</div>
+                </li>
+            </ul>
+            <div style="margin-top:20px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                <p><strong>Note:</strong> Ces informations simulées seront remplacées par le flux MQTT réel (Node-RED) dans la prochaine version du projet, en utilisant l'ingestion API mise en place.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const MACHINE_ID = parseInt("{{ machine_id }}", 10);
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/machine.js') }}"></script>
+{% endblock %}

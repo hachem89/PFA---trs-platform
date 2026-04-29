@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRS IoT — {% block title %}Dashboard{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="sidebar-logo">TRS · IOT</div>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/dashboard" class="nav-item {% if page == 'dashboard' %}active{% endif %}">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Dashboard</span>
+        </a>
+        <a href="/analysis" class="nav-item {% if page == 'analysis' %}active{% endif %}">
+            <span class="nav-icon">📈</span>
+            <span class="nav-label">Analyse TRS</span>
+        </a>
+        <div class="nav-separator"></div>
+        <a href="/settings" class="nav-item {% if page == 'settings' %}active{% endif %}">
+            <span class="nav-icon">⚙️</span>
+            <span class="nav-label">Usines & Machines</span>
+        </a>
+        <a href="/profile" class="nav-item {% if page == 'profile' %}active{% endif %}">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Profil</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="/logout" class="nav-item">
+            <span class="nav-icon">🚪</span>
+            <span class="nav-label">Déconnexion</span>
+        </a>
+    </div>
+</aside>
+
+<!-- ═══ TOPBAR ═══ -->
+<header class="topbar">
+    <div class="topbar-left">
+        <button class="mobile-toggle" onclick="toggleMobileSidebar()">☰</button>
+        <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
+    </div>
+    <div class="topbar-right">
+        <span class="topbar-user">
+            <strong>{{ client.firstname }} {{ client.lastname }}</strong> · {{ client.entreprise }}
+        </span>
+        <div class="topbar-avatar">{{ client.firstname[0] }}{{ client.lastname[0] }}</div>
+    </div>
+</header>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/base.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Profil{% endblock %}
+{% block page_title %}Mon Profil{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-grid">
+    <!-- Left sidebar -->
+    <div class="profile-sidebar">
+        <div class="profile-avatar" id="avatar-initials">{{ client.firstname[0] }}{{ client.lastname[0] }}</div>
+        <div class="profile-name" id="display-name">{{ client.firstname }} {{ client.lastname }}</div>
+        <div class="profile-email">{{ client.email }}</div>
+        <div style="margin-bottom: 16px;">
+            <span class="badge badge-green">Actif</span>
+        </div>
+        <div class="profile-meta">
+            <div class="profile-meta-item">
+                <span class="profile-meta-label">Entreprise</span>
+                <span class="profile-meta-value" id="display-entreprise">{{ client.entreprise or '—' }}</span>
+            </div>
+            <div class="profile-meta-item">
+                <span class="profile-meta-label">Secteur</span>
+                <span class="profile-meta-value" id="display-secteur">{{ client.sector or '—' }}</span>
+            </div>
+            <div class="profile-meta-item">
+                <span class="profile-meta-label">Usines</span>
+                <span class="profile-meta-value">{{ client.factories | length }}</span>
+            </div>
+            <div class="profile-meta-item">
+                <span class="profile-meta-label">Machines</span>
+                <span class="profile-meta-value">
+                    {% set total = [] %}
+                    {% for factory in client.factories %}{% for m in factory.machines %}{% if total.append(1) %}{% endif %}{% endfor %}{% endfor %}
+                    {{ total | length }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right forms -->
+    <div class="profile-forms">
+        <!-- Personal Info -->
+        <div class="profile-card">
+            <div class="profile-card-title">
+                👤 Informations personnelles
+                <span class="save-indicator" id="info-saved">✅ Enregistré</span>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Prénom</label>
+                    <input class="form-input" id="edit-prenom" value="{{ client.firstname or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nom</label>
+                    <input class="form-input" id="edit-nom" value="{{ client.lastname or '' }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Téléphone</label>
+                <input class="form-input" id="edit-telephone" value="{{ client.phone_number or '' }}" placeholder="+216 XX XXX XXX">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Entreprise</label>
+                    <input class="form-input" id="edit-entreprise" value="{{ client.entreprise or '' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Secteur</label>
+                    <select class="form-select" id="edit-secteur">
+                        <option value="">Choisir...</option>
+                        {% for s in ['Agroalimentaire', 'Textile', 'Mécanique', 'Électronique', 'Chimie', 'Autre'] %}
+                        <option {% if client.sector == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveProfile()" style="margin-top:8px;">
+                💾 Enregistrer les modifications
+            </button>
+        </div>
+
+        <!-- Password Change -->
+        <div class="profile-card">
+            <div class="profile-card-title">
+                🔒 Changer le mot de passe
+                <span class="save-indicator" id="pwd-saved">✅ Enregistré</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mot de passe actuel</label>
+                <input class="form-input" type="password" id="current-password" placeholder="••••••••">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Nouveau mot de passe</label>
+                    <input class="form-input" type="password" id="new-password" placeholder="Min. 8 caractères">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirmer</label>
+                    <input class="form-input" type="password" id="confirm-password" placeholder="••••••••">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="changePassword()" style="margin-top:8px;">
+                🔒 Mettre à jour le mot de passe
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

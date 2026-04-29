@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRS IoT — Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0d1117;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 24px;
+        }
+        .bg-grid {
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+            background-size: 40px 40px; pointer-events: none;
+        }
+        .wrapper { width: 100%; max-width: 500px; position: relative; z-index: 1; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 36px; }
+        .logo { text-align: center; margin-bottom: 24px; }
+        .logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; margin: 0 auto 12px; font-size: 20px;
+        }
+        .logo h1 { font-family: 'Space Mono', monospace; color: #f0f6ff; font-size: 18px; letter-spacing: 2px; }
+        .logo p { color: #8b949e; font-size: 12px; margin-top: 4px; }
+        .tabs {
+            display: flex; background: #0d1117; border-radius: 10px;
+            padding: 4px; margin-bottom: 24px; border: 1px solid #21262d;
+        }
+        .tab {
+            flex: 1; padding: 9px; text-align: center; font-size: 13px;
+            font-weight: 500; cursor: pointer; border-radius: 7px;
+            color: #8b949e; transition: all 0.2s; border: none;
+            background: transparent; font-family: 'Inter', sans-serif;
+        }
+        .tab.active { background: #161b22; color: #f0f6ff; border: 1px solid #30363d; }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+        .form-group { margin-bottom: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        label {
+            color: #8b949e; font-size: 11px; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            display: block; margin-bottom: 6px;
+        }
+        input, select {
+            width: 100%; padding: 10px 13px;
+            background: #0d1117; border: 1px solid #30363d;
+            border-radius: 8px; color: #f0f6ff; font-size: 13px;
+            font-family: 'Inter', sans-serif; transition: border-color 0.2s;
+        }
+        input:focus, select:focus {
+            outline: none; border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        input::placeholder { color: #484f58; }
+        select option { background: #161b22; }
+        .btn {
+            width: 100%; padding: 11px; background: #1d4ed8; color: #fff;
+            border: none; border-radius: 8px; font-size: 13px; font-weight: 500;
+            cursor: pointer; margin-top: 6px; transition: background 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn:hover { background: #2563eb; }
+        .btn-outline {
+            background: transparent; border: 1px solid #30363d;
+            color: #8b949e; margin-top: 8px;
+        }
+        .btn-outline:hover { border-color: #8b949e; color: #f0f6ff; background: transparent; }
+        .error {
+            background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3);
+            color: #f85149; padding: 10px 14px; border-radius: 8px;
+            font-size: 13px; margin-bottom: 14px;
+        }
+        .steps {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; margin-bottom: 20px;
+        }
+        .step { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #484f58; }
+        .step.active { color: #58a6ff; }
+        .step.done { color: #3fb950; }
+        .step-num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #21262d; display: flex; align-items: center;
+            justify-content: center; font-size: 11px; font-weight: 600;
+            border: 1px solid #30363d;
+        }
+        .step.active .step-num { background: #1d4ed8; border-color: #3b82f6; color: #fff; }
+        .step.done .step-num { background: #0d4429; border-color: #3fb950; color: #3fb950; }
+        .step-line { width: 20px; height: 1px; background: #21262d; }
+        .section-label {
+            font-size: 11px; color: #58a6ff; text-transform: uppercase;
+            letter-spacing: 1px; font-weight: 600; margin-bottom: 14px;
+            padding-bottom: 8px; border-bottom: 1px solid #21262d;
+        }
+        .machine-block {
+            background: #0d1117; border: 1px solid #21262d;
+            border-radius: 10px; padding: 14px; margin-bottom: 10px;
+        }
+        .machine-block-title {
+            font-size: 12px; color: #8b949e; margin-bottom: 12px;
+            font-weight: 500; display: flex; justify-content: space-between; align-items: center;
+        }
+        .add-machine-btn {
+            width: 100%; padding: 9px; background: transparent;
+            border: 1px dashed #30363d; border-radius: 8px;
+            color: #58a6ff; font-size: 12px; cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif; margin-top: 4px;
+        }
+        .add-machine-btn:hover { border-color: #58a6ff; background: rgba(59,130,246,0.05); }
+        .remove-btn { background: none; border: none; color: #f85149; cursor: pointer; font-size: 12px; }
+        .divider { height: 1px; background: #21262d; margin: 16px 0; }
+        .hint { font-size: 11px; color: #484f58; margin-top: 4px; }
+        .nav-btns { display: flex; gap: 10px; margin-top: 14px; }
+        .nav-btns .btn { margin-top: 0; }
+        .link-switch { margin-top: 14px; text-align: center; font-size: 12px; color: #484f58; }
+        .link-switch a { color: #58a6ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="wrapper">
+    <div class="card">
+        <div class="logo">
+            <div class="logo-icon">⚙</div>
+            <h1>TRS · IOT</h1>
+            <p>Plateforme de suivi industriel temps réel</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" id="tab-btn-login" onclick="showTab('login')">Se connecter</button>
+            <button class="tab" id="tab-btn-register" onclick="showTab('register')">Créer un compte</button>
+        </div>
+
+        <!-- ═══ LOGIN ═══ -->
+        <div class="form-section active" id="tab-login">
+            {% if error %}
+            <div class="error">⚠ {{ error }}</div>
+            {% endif %}
+            <form method="POST" action="/login">
+                <div class="form-group">
+                    <label>Email professionnel</label>
+                    <input type="email" name="email" placeholder="client@entreprise.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn">→ Se connecter</button>
+            </form>
+            <div class="link-switch">
+                Pas encore de compte ? <a href="#" onclick="showTab('register')">Créer un compte →</a>
+            </div>
+        </div>
+
+        <!-- ═══ REGISTER ═══ -->
+        <div class="form-section" id="tab-register">
+            <div class="steps">
+                <div class="step active" id="step-ind-1"><div class="step-num">1</div><span>Compte</span></div>
+                <div class="step-line"></div>
+                <div class="step" id="step-ind-2"><div class="step-num">2</div><span>Usine</span></div>
+                <div class="step-line"></div>
+                <div class="step" id="step-ind-3"><div class="step-num">3</div><span>Machines</span></div>
+            </div>
+
+            <form method="POST" action="/register" id="register-form">
+
+                <!-- Étape 1 -->
+                <div id="step-1">
+                    <div class="section-label">👤 Informations personnelles</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Prénom</label>
+                            <input type="text" name="firstname" placeholder="Ahmed" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nom</label>
+                            <input type="text" name="lastname" placeholder="Ben Ali" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email professionnel</label>
+                        <input type="email" name="email" placeholder="ahmed@entreprise.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mot de passe</label>
+                        <input type="password" name="password" id="pwd" placeholder="Min. 8 caractères" required>
+                        <div class="hint">Au moins 8 caractères</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmer le mot de passe</label>
+                        <input type="password" name="password2" id="pwd2" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nom de l'entreprise</label>
+                        <input type="text" name="entreprise" placeholder="Entreprise SARL" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Téléphone</label>
+                            <input type="tel" name="phone_number" placeholder="+216 XX XXX XXX">
+                        </div>
+                        <div class="form-group">
+                            <label>Secteur</label>
+                            <select name="sector">
+                                <option value="">Choisir...</option>
+                                <option>Agroalimentaire</option>
+                                <option>Textile</option>
+                                <option>Mécanique</option>
+                                <option>Électronique</option>
+                                <option>Chimie</option>
+                                <option>Autre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" class="btn" onclick="nextStep(1)">Suivant →</button>
+                </div>
+
+                <!-- Étape 2 -->
+                <div id="step-2" style="display:none;">
+                    <div class="section-label">🏭 Informations de l'usine</div>
+                    <div class="form-group">
+                        <label>Nom de l'usine</label>
+                        <input type="text" name="factory_name" placeholder="Usine principale" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ville</label>
+                            <input type="text" name="factory_city" placeholder="Tunis" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pays</label>
+                            <select name="factory_country">
+                                <option>Tunisie</option>
+                                <option>Algérie</option>
+                                <option>Maroc</option>
+                                <option>France</option>
+                                <option>Autre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Adresse</label>
+                        <input type="text" name="factory_address" placeholder="Zone industrielle, Rue...">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre de postes / jour</label>
+                            <select name="number_of_shifts">
+                                <option value="1">1 poste (8h)</option>
+                                <option value="2">2 postes (16h)</option>
+                                <option value="3">3 postes (24h)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Temps requis Tr (h/jour)</label>
+                            <input type="number" name="factory_tr" placeholder="8" min="1" max="24" value="8">
+                            <div class="hint">Tr = ouverture - arrêts planifiés</div>
+                        </div>
+                    </div>
+                    <div class="nav-btns">
+                        <button type="button" class="btn btn-outline" onclick="prevStep(2)">← Retour</button>
+                        <button type="button" class="btn" onclick="nextStep(2)">Suivant →</button>
+                    </div>
+                </div>
+
+                <!-- Étape 3 -->
+                <div id="step-3" style="display:none;">
+                    <div class="section-label">⚙ Caractéristiques des machines</div>
+                    <div id="machines-container">
+                        <div class="machine-block" id="machine-0">
+                            <div class="machine-block-title">
+                                <span>Machine 1</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Nom de la machine</label>
+                                <input type="text" name="machine_name_0" placeholder="Machine de découpe" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Cadence théorique (pièces/min)</label>
+                                    <input type="number" name="machine_cadence_0" placeholder="50" min="1" step="0.1" required>
+                                    <div class="hint">Vitesse nominale constructeur</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Temps cycle théorique (s)</label>
+                                    <input type="number" name="machine_tc_0" placeholder="1.2" min="0.1" step="0.1">
+                                    <div class="hint">= 60 / cadence</div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Seuil Vibration</label>
+                                    <input type="number" name="machine_vibration_threshold_0" placeholder="0.0" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Seuil Pièce CM</label>
+                                    <input type="number" name="machine_piece_cm_threshold_0" placeholder="0.0" step="0.1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Délai entre mesures (s)</label>
+                                <input type="number" name="machine_delay_0" placeholder="60" min="1">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Capteur vitesse</label>
+                                    <select name="machine_capteur_vitesse_0">
+                                        <option value="hall">Hall effect</option>
+                                        <option value="encodeur">Encodeur</option>
+                                        <option value="inductif">Inductif</option>
+                                        <option value="simulation">Simulation</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Capteur pièces</label>
+                                    <select name="machine_capteur_pieces_0">
+                                        <option value="ultrason">Ultrason HC-SR04</option>
+                                        <option value="barrage">Barrage optique</option>
+                                        <option value="camera">Caméra USB</option>
+                                        <option value="simulation">Simulation</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Capteur disponibilité</label>
+                                    <select name="machine_capteur_dispo_0">
+                                        <option value="adxl345">ADXL345 (vibration)</option>
+                                        <option value="courant">Capteur courant</option>
+                                        <option value="simulation">Simulation</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Capteur qualité</label>
+                                    <select name="machine_capteur_qualite_0">
+                                        <option value="camera">Caméra + IA</option>
+                                        <option value="manuel">Saisie manuelle</option>
+                                        <option value="simulation">Simulation</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="add-machine-btn" onclick="addMachine()">+ Ajouter une machine</button>
+                    <div class="divider"></div>
+                    <div class="nav-btns">
+                        <button type="button" class="btn btn-outline" onclick="prevStep(3)">← Retour</button>
+                        <button type="submit" class="btn">✓ Créer mon compte</button>
+                    </div>
+                </div>
+
+            </form>
+            <div class="link-switch">
+                Déjà un compte ? <a href="#" onclick="showTab('login')">Se connecter →</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+let machineCount = 1;
+
+function showTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('tab-btn-' + tab).classList.add('active');
+}
+
+function nextStep(current) {
+    if (current === 1) {
+        const pwd = document.getElementById('pwd').value;
+        const pwd2 = document.getElementById('pwd2').value;
+        if (pwd.length < 8) { alert('Le mot de passe doit avoir au moins 8 caractères.'); return; }
+        if (pwd !== pwd2) { alert('Les mots de passe ne correspondent pas.'); return; }
+    }
+    document.getElementById('step-' + current).style.display = 'none';
+    document.getElementById('step-' + (current + 1)).style.display = 'block';
+    updateSteps(current + 1);
+}
+
+function prevStep(current) {
+    document.getElementById('step-' + current).style.display = 'none';
+    document.getElementById('step-' + (current - 1)).style.display = 'block';
+    updateSteps(current - 1);
+}
+
+function updateSteps(active) {
+    for (let i = 1; i <= 3; i++) {
+        const el = document.getElementById('step-ind-' + i);
+        el.classList.remove('active', 'done');
+        if (i < active) el.classList.add('done');
+        else if (i === active) el.classList.add('active');
+    }
+}
+
+function addMachine() {
+    const idx = machineCount;
+    const container = document.getElementById('machines-container');
+    const block = document.createElement('div');
+    block.className = 'machine-block';
+    block.id = 'machine-' + idx;
+    block.innerHTML = `
+        <div class="machine-block-title">
+            <span>Machine ${idx + 1}</span>
+            <button type="button" class="remove-btn" onclick="removeMachine(${idx})">✕ Supprimer</button>
+        </div>
+        <div class="form-group">
+            <label>Nom de la machine</label>
+            <input type="text" name="machine_name_${idx}" placeholder="Machine de découpe">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Cadence théorique (pièces/min)</label>
+                <input type="number" name="machine_cadence_${idx}" placeholder="50" min="1" step="0.1">
+            </div>
+            <div class="form-group">
+                <label>Temps cycle théorique (s)</label>
+                <input type="number" name="machine_tc_${idx}" placeholder="1.2" min="0.1" step="0.1">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Seuil Vibration</label>
+                <input type="number" name="machine_vibration_threshold_${idx}" placeholder="0.0" step="0.1">
+            </div>
+            <div class="form-group">
+                <label>Seuil Pièce CM</label>
+                <input type="number" name="machine_piece_cm_threshold_${idx}" placeholder="0.0" step="0.1">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Délai entre mesures (s)</label>
+            <input type="number" name="machine_delay_${idx}" placeholder="60" min="1">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Capteur vitesse</label>
+                <select name="machine_capteur_vitesse_${idx}">
+                    <option value="hall">Hall effect</option>
+                    <option value="encodeur">Encodeur</option>
+                    <option value="simulation">Simulation</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Capteur pièces</label>
+                <select name="machine_capteur_pieces_${idx}">
+                    <option value="ultrason">Ultrason HC-SR04</option>
+                    <option value="camera">Caméra USB</option>
+                    <option value="simulation">Simulation</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Capteur disponibilité</label>
+                <select name="machine_capteur_dispo_${idx}">
+                    <option value="adxl345">ADXL345</option>
+                    <option value="simulation">Simulation</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Capteur qualité</label>
+                <select name="machine_capteur_qualite_${idx}">
+                    <option value="camera">Caméra + IA</option>
+                    <option value="simulation">Simulation</option>
+                </select>
+            </div>
+        </div>`;
+    container.appendChild(block);
+    machineCount++;
+}
+
+function removeMachine(idx) {
+    document.getElementById('machine-' + idx).remove();
+}
+</script>
+</body>
+</html>

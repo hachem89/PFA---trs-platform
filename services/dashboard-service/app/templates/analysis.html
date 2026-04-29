@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Analyse TRS{% endblock %}
+{% block page_title %}Analyse & Tendances{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analysis.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Controls -->
+<div class="analysis-controls">
+    <div class="control-group">
+        <span class="control-label">Machine :</span>
+        <select class="control-select" id="machine-select" onchange="loadHistory()">
+            <option value="">Chargement...</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <span class="control-label">Période :</span>
+        <select class="control-select" id="period-select" onchange="loadHistory()">
+            <option value="7">7 jours</option>
+            <option value="14">14 jours</option>
+            <option value="30" selected>30 jours</option>
+            <option value="90">90 jours</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <div class="metric-chips" id="metric-chips">
+            <button class="metric-chip active" data-metric="trs" onclick="toggleMetric(this)">TRS</button>
+            <button class="metric-chip" data-metric="tdo" onclick="toggleMetric(this)">TDO</button>
+            <button class="metric-chip" data-metric="tp" onclick="toggleMetric(this)">TP</button>
+            <button class="metric-chip" data-metric="tq" onclick="toggleMetric(this)">TQ</button>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Summary -->
+<div class="stats-grid" id="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value c-green" id="stat-avg">—</div>
+        <div class="stat-label">Moyenne</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value c-blue" id="stat-max">—</div>
+        <div class="stat-label">Maximum</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value c-red" id="stat-min">—</div>
+        <div class="stat-label">Minimum</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value c-purple" id="stat-trend">—</div>
+        <div class="stat-label">Tendance</div>
+    </div>
+</div>
+
+<!-- Main Chart -->
+<div class="chart-card">
+    <div class="chart-title" id="chart-title">Évolution du TRS</div>
+    <div class="chart-subtitle" id="chart-subtitle">Sélectionnez une machine pour voir ses tendances</div>
+    <div class="chart-wrapper">
+        <canvas id="main-chart"></canvas>
+    </div>
+</div>
+
+<!-- Comparison Chart -->
+<div class="chart-card">
+    <div class="chart-title">Comparaison inter-machines</div>
+    <div class="chart-subtitle">TRS de toutes les machines sur la même période</div>
+    <div class="compare-chart-wrapper">
+        <canvas id="compare-chart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
+{% endblock %}
