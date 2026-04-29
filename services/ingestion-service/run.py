@@ -1,6 +1,6 @@
+import shared.models   
 from flask import Flask
 from app.routes.ingest import ingest_bp
-import shared.models   
 
 def create_app():
     app = Flask(__name__)
