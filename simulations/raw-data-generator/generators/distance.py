@@ -6,7 +6,7 @@ import paho.mqtt.client as mqtt
 client = mqtt.Client()
 client.connect("mqtt", 1883, 60)
 
-TOPIC = "client/client1/factory/f1/machine/m1/distance"
+TOPIC = "client/550e8400-e29b-41d4-a716-446655440000/factory/550e8400-e29b-41d4-a716-446655440001/machine/550e8400-e29b-41d4-a716-446655440002/distance"
 
 
 def run_distance(loop=False):

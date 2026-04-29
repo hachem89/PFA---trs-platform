@@ -3,6 +3,8 @@ from sqlalchemy import Column, String, ForeignKey, TIMESTAMP
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from shared.database import Base
+from sqlalchemy.orm import relationship
+
 
 class Device(Base):
     __tablename__ = "devices"
@@ -19,5 +21,5 @@ class Device(Base):
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     # Optional relationships
-    client = Base.relationship("Client", backref="devices")
-    factory = Base.relationship("Factory", backref="devices")
+    client = relationship("Client", backref="devices")
+    factory = relationship("Factory", backref="devices")

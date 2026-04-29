@@ -4,6 +4,8 @@ from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
 from shared.database import Base
 
+
+
 class Event(Base):
     __tablename__ = "events"
 
@@ -18,7 +20,7 @@ class Event(Base):
     event_type = Column(String, nullable=False)
     value = Column(String)
 
-    metadata = Column(JSONB, default={})
+    event_metadata = Column(JSONB, default={})
 
     timestamp = Column(TIMESTAMP(timezone=True), server_default=func.now())
 

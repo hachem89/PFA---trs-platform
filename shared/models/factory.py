@@ -3,6 +3,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey, TIMESTAMP
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import UUID
 from shared.database import Base
+from sqlalchemy.orm import relationship
 
 class Factory(Base):
     __tablename__ = "factories"
@@ -20,6 +21,6 @@ class Factory(Base):
 
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
-    machines = Base.relationship(
+    machines = relationship(
         "Machine", backref="factory", lazy=True, cascade="all, delete-orphan"
     )

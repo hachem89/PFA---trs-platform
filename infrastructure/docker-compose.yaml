@@ -14,6 +14,7 @@ services:
       - ./node-red:/data
     depends_on:
       - mqtt
+      - ingestion-service
 
   simulation:
     build: ../simulations/raw-data-generator
@@ -22,3 +23,14 @@ services:
       - GENERATOR_MODE=all
     depends_on:
       - mqtt
+
+  ingestion-service:
+    build:
+      context: ..
+      dockerfile: services/ingestion-service/Dockerfile
+    container_name: ingestion-service
+    ports:
+      - "5000:5000"
+    env_file:
+      - ../.env
+    

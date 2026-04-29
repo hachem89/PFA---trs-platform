@@ -4,6 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from shared.database import Base
 
+
 class KpiSnapshot(Base):
     __tablename__ = "kpi_snapshots"
 

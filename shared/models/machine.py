@@ -3,6 +3,7 @@ from sqlalchemy import Column, String, Float, ForeignKey, Integer, TIMESTAMP
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import UUID
 from shared.database import Base
+from sqlalchemy.orm import relationship, backref
 
 class Machine(Base):
     __tablename__ = "machines"
@@ -24,8 +25,8 @@ class Machine(Base):
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     # Relationships
-    device = Base.relationship("Device", backref=Base.backref("machine", uselist=False), uselist=False)
-    history = Base.relationship(
+    device = relationship("Device", backref=backref("machine", uselist=False), uselist=False)
+    history = relationship(
         "KpiSnapshot", backref="machine", lazy=True, cascade="all, delete-orphan"
     )
     
