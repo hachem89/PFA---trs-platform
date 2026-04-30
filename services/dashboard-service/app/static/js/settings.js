@@ -34,8 +34,8 @@ function renderUsines(usines) {
                     </div>
                 </div>
                 <div class="usine-block-actions" onclick="event.stopPropagation()">
-                    <button class="btn btn-secondary btn-sm" onclick="openUsineModal(${u.id}, '${escHtml(u.nom)}', '${escHtml(u.ville||'')}', '${escHtml(u.pays||'Tunisie')}', ${u.postes}, ${u.tr})">✏️ Modifier</button>
-                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('usine', ${u.id}, '${escHtml(u.nom)}')">🗑️</button>
+                    <button class="btn btn-secondary btn-sm" onclick="openUsineModal('${u.id}', '${escHtml(u.nom)}', '${escHtml(u.ville||'')}', '${escHtml(u.pays||'Tunisie')}', ${u.postes}, ${u.tr})">✏️ Modifier</button>
+                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('usine', '${u.id}', '${escHtml(u.nom)}')">🗑️</button>
                 </div>
             </div>
             <div class="usine-block-body">
@@ -64,8 +64,8 @@ function renderUsines(usines) {
                                 </td>
                                 <td>
                                     <div class="actions">
-                                        <button class="btn btn-secondary btn-sm btn-icon" onclick="openMachineModal(${u.id}, ${m.id}, '${escHtml(m.nom)}', ${m.cadence_theorique}, ${m.seuil_vibration}, ${m.seuil_piece_cm}, ${m.delai_mesures}, '${m.capteur_vitesse}', '${m.capteur_pieces}', '${m.capteur_dispo}', '${m.capteur_qualite}')">✏️</button>
-                                        <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('machine', ${m.id}, '${escHtml(m.nom)}')">🗑️</button>
+                                        <button class="btn btn-secondary btn-sm btn-icon" onclick="openMachineModal('${u.id}', '${m.id}', '${escHtml(m.nom)}', ${m.cadence_theorique}, ${m.seuil_vibration}, ${m.seuil_piece_cm}, ${m.delai_mesures}, '${m.capteur_vitesse}', '${m.capteur_pieces}', '${m.capteur_dispo}', '${m.capteur_qualite}')">✏️</button>
+                                        <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('machine', '${m.id}', '${escHtml(m.nom)}')">🗑️</button>
                                     </div>
                                 </td>
                             </tr>`).join('')}
@@ -74,7 +74,7 @@ function renderUsines(usines) {
                 </div>` : `
                 <div class="empty-machines"><p>Aucune machine dans cette usine</p></div>`}
                 <div class="add-machine-row">
-                    <button class="btn btn-secondary btn-sm" onclick="openMachineModal(${u.id})">+ Ajouter une machine</button>
+                    <button class="btn btn-secondary btn-sm" onclick="openMachineModal('${u.id}')">+ Ajouter une machine</button>
                 </div>
             </div>
         </div>

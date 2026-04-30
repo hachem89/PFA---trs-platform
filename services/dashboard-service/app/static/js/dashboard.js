@@ -38,7 +38,7 @@ function renderFilters() {
     const container = document.getElementById('usine-filter');
     let html = `<button class="usine-chip active" onclick="filterUsine('all')">Toutes</button>`;
     dashboardData.usines.forEach(u => {
-        html += `<button class="usine-chip" onclick="filterUsine(${u.id})">${u.nom}</button>`;
+        html += `<button class="usine-chip" onclick="filterUsine('${u.id}')">${u.nom}</button>`;
     });
     container.innerHTML = html;
 }

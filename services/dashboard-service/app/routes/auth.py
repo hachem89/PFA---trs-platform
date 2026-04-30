@@ -22,7 +22,7 @@ def login():
         if client and client.password == password:
             # We store the ID as a string in the session
             session["client_id"] = str(client.id)
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("pages.dashboard"))
             
         return render_template("login.html", error="Email ou mot de passe incorrect")
     
@@ -90,7 +90,7 @@ def register():
     db_session.commit()
     
     session["client_id"] = str(new_client.id)
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("pages.dashboard"))
 
 @auth_bp.route("/logout")
 def logout():
