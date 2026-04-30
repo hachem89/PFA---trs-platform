@@ -15,6 +15,7 @@ class Machine(Base):
     name = Column(String, nullable=False)
 
     theoretical_speed = Column(Float, nullable=False)
+    theoretical_cycle_time = Column(Float, default=0.0)
 
     status = Column(String, default="offline")
 

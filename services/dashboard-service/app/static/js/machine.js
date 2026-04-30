@@ -49,6 +49,7 @@ function populateUI(m) {
     document.getElementById('m-pieces-rebus').textContent = mock.pieces_rebus;
     document.getElementById('m-cycle-time').innerHTML = `${mock.cycle_time} <span style="font-size: 13px; color: var(--text-secondary);">s/pièce</span>`;
     document.getElementById('m-cadence').innerHTML = `${m.cadence_theorique} <span style="font-size: 13px; color: var(--text-secondary);">pcs/min</span>`;
+    document.getElementById('m-cycle-theo').innerHTML = `${m.cycle_theorique || '—'} <span style="font-size: 13px; color: var(--text-secondary);">s</span>`;
     
     // IoT environment
     document.getElementById('m-temp').innerHTML = `${mock.temperature} <span style="font-size: 13px; color: var(--text-secondary);">°C</span>`;

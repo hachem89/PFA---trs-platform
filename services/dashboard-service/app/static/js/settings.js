@@ -64,7 +64,7 @@ function renderUsines(usines) {
                                 </td>
                                 <td>
                                     <div class="actions">
-                                        <button class="btn btn-secondary btn-sm btn-icon" onclick="openMachineModal('${u.id}', '${m.id}', '${escHtml(m.nom)}', ${m.cadence_theorique}, ${m.seuil_vibration}, ${m.seuil_piece_cm}, ${m.delai_mesures}, '${m.capteur_vitesse}', '${m.capteur_pieces}', '${m.capteur_dispo}', '${m.capteur_qualite}')">✏️</button>
+                                        <button class="btn btn-secondary btn-sm btn-icon" onclick="openMachineModal('${u.id}', '${m.id}', '${escHtml(m.nom)}', ${m.cadence_theorique}, ${m.cycle_theorique}, ${m.seuil_vibration}, ${m.seuil_piece_cm}, ${m.delai_mesures}, '${m.capteur_vitesse}', '${m.capteur_pieces}', '${m.capteur_dispo}', '${m.capteur_qualite}')">✏️</button>
                                         <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('machine', '${m.id}', '${escHtml(m.nom)}')">🗑️</button>
                                     </div>
                                 </td>
@@ -119,11 +119,12 @@ async function saveUsine() {
 
 // ── Machine Modal ──
 
-function openMachineModal(usineId, machineId, nom, cadence, seuilV, seuilP, delai, cv, cp, cd, cq) {
+function openMachineModal(usineId, machineId, nom, cadence, tc, seuilV, seuilP, delai, cv, cp, cd, cq) {
     document.getElementById('machine-usine-id').value = usineId || '';
     document.getElementById('machine-edit-id').value = machineId || '';
     document.getElementById('machine-nom').value = nom || '';
     document.getElementById('machine-cadence').value = cadence || '';
+    document.getElementById('machine-tc').value = tc || '';
     document.getElementById('machine-seuil-vibration').value = seuilV || '';
     document.getElementById('machine-seuil-piece-cm').value = seuilP || '';
     document.getElementById('machine-delai').value = delai || '';
@@ -142,6 +143,7 @@ async function saveMachine() {
     const data = {
         nom: document.getElementById('machine-nom').value,
         cadence_theorique: parseFloat(document.getElementById('machine-cadence').value) || 50,
+        cycle_theorique: parseFloat(document.getElementById('machine-tc').value) || 0.0,
         seuil_vibration: parseFloat(document.getElementById('machine-seuil-vibration').value) || 0.0,
         seuil_piece_cm: parseFloat(document.getElementById('machine-seuil-piece-cm').value) || 0.0,
         delai_mesures: parseInt(document.getElementById('machine-delai').value) || 60,

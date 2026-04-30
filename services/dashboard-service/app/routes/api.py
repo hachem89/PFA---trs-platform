@@ -49,6 +49,7 @@ def dashboard_data():
                 "nom": m.name, 
                 "status": m.status,
                 "cadence_theorique": m.theoretical_speed,
+                "cycle_theorique": m.theoretical_cycle_time,
                 "trs": kpis["trs"], 
                 "tdo": kpis["tdo"], 
                 "tp": kpis["tp"], 
@@ -105,6 +106,7 @@ def get_factories():
                 "id": str(m.id), 
                 "nom": m.name,
                 "cadence_theorique": m.theoretical_speed,
+                "cycle_theorique": m.theoretical_cycle_time,
                 "trs": get_latest_kpis(m.id)["trs"], 
                 "status": m.status,
                 "seuil_vibration": m.vibration_threshold,
@@ -184,6 +186,7 @@ def add_machine(factory_id):
         factory_id=factory.id,
         name=data.get("nom", "Nouvelle machine"),
         theoretical_speed=float(data.get("cadence_theorique", 50)),
+        theoretical_cycle_time=float(data.get("cycle_theorique", 0.0)),
         status="offline",
         vibration_threshold=float(data.get("seuil_vibration", 0.0)),
         piece_cm_threshold=float(data.get("seuil_piece_cm", 0.0)),
@@ -209,6 +212,7 @@ def update_machine(machine_id):
     data = request.get_json()
     machine.name = data.get("nom", machine.name)
     machine.theoretical_speed = float(data.get("cadence_theorique", machine.theoretical_speed))
+    machine.theoretical_cycle_time = float(data.get("cycle_theorique", machine.theoretical_cycle_time))
     machine.vibration_threshold = float(data.get("seuil_vibration", machine.vibration_threshold))
     machine.piece_cm_threshold = float(data.get("seuil_piece_cm", machine.piece_cm_threshold))
     machine.measurement_delays = int(data.get("delai_mesures", machine.measurement_delays))
@@ -265,6 +269,7 @@ def machine_details(machine_id):
         "usine_nom": machine.factory.name,
         "status": machine.status,
         "cadence_theorique": machine.theoretical_speed,
+        "cycle_theorique": machine.theoretical_cycle_time,
         "trs": kpis["trs"],
         "tdo": kpis["tdo"],
         "tp": kpis["tp"],

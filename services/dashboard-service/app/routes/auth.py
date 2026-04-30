@@ -76,11 +76,12 @@ def register():
             factory_id=new_factory.id,
             name=request.form.get(f"machine_name_{i}"),
             # Mapping 'cadence' -> 'theoretical_speed' and 'delai' -> 'measurement_delays'
-            theoretical_speed=float(request.form.get(f"machine_cadence_{i}", 50)),
+            theoretical_speed=float(request.form.get(f"machine_cadence_{i}") or 50),
+            theoretical_cycle_time=float(request.form.get(f"machine_tc_{i}") or 0.0),
             status="offline",
-            vibration_threshold=float(request.form.get(f"machine_vibration_threshold_{i}", 0.0)),
-            piece_cm_threshold=float(request.form.get(f"machine_piece_cm_threshold_{i}", 0.0)),
-            measurement_delays=int(request.form.get(f"machine_delay_{i}", 60)),
+            vibration_threshold=float(request.form.get(f"machine_vibration_threshold_{i}") or 0.0),
+            piece_cm_threshold=float(request.form.get(f"machine_piece_cm_threshold_{i}") or 0.0),
+            measurement_delays=int(request.form.get(f"machine_delay_{i}") or 60),
         )
         db_session.add(new_machine)
         # Note: seed_demo_history was intentionally omitted per your request
