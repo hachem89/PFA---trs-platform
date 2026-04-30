@@ -33,4 +33,16 @@ services:
       - "5000:5000"
     env_file:
       - ../.env
+
+  dashboard-service:
+    build:
+      context: ..
+      dockerfile: services/dashboard-service/Dockerfile
+    container_name: dashboard-service
+    ports:
+      - "5001:5001"
+    env_file:
+      - ../.env
+    depends_on:
+      - ingestion-service
     
