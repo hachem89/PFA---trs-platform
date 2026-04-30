@@ -3,22 +3,19 @@ import random
 import time
 import paho.mqtt.client as mqtt
 
-client = mqtt.Client()
-client.connect("mqtt", 1883, 60)
+mqtt_client = mqtt.Client()
+mqtt_client.connect("mqtt", 1883, 60)
 
-TOPIC = "client/550e8400-e29b-41d4-a716-446655440000/factory/550e8400-e29b-41d4-a716-446655440001/machine/550e8400-e29b-41d4-a716-446655440002/distance"
-
-
-def run_distance(loop=False):
+def run_distance(client_id, factory_id, machine_id, loop=False):
+    topic = f"client/{client_id}/factory/{factory_id}/machine/{machine_id}/distance"
+    
     while True:
         data = {
             "distance": random.randint(5, 30)
         }
 
-        client.publish(TOPIC, json.dumps(data))
-        print("DISTANCE:", data)
-
+        mqtt_client.publish(topic, json.dumps(data))
+        
         if not loop:
             break
-
         time.sleep(1)

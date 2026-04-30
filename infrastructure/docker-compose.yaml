@@ -17,10 +17,14 @@ services:
       - ingestion-service
 
   simulation:
-    build: ../simulations/raw-data-generator
+    build:
+      context: ..
+      dockerfile: simulations/raw-data-generator/Dockerfile
     container_name: simulation
     environment:
       - GENERATOR_MODE=all
+    env_file:
+      - ../.env
     depends_on:
       - mqtt
 

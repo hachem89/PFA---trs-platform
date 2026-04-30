@@ -18,7 +18,8 @@
             }
         },
         "debug": {
-            "filter": "filterSelected"
+            "filter": "filterSelected",
+            "filteredNodes": []
         }
     }
 }
