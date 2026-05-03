@@ -1,23 +1,17 @@
 import json
 import random
 import time
-import paho.mqtt.client as mqtt
 
-# Single persistent MQTT client for the whole thread/process
-mqtt_client = mqtt.Client()
-mqtt_client.connect("mqtt", 1883, 60)
-
-def run_camera(client_id, factory_id, machine_id, loop=False):
+def run_camera(client_id, factory_id, machine_id, mqtt_client):
     topic = f"client/{client_id}/factory/{factory_id}/machine/{machine_id}/camera"
     
-    while True:
-        data = {
-            "class": random.choice(["good", "bad"]),
-            "confidence": round(random.uniform(0.7, 1.0), 2)
-        }
-        print(f"[Machine {machine_id}] CAMERA: ", data)
-        mqtt_client.publish(topic, json.dumps(data))
-        
-        if not loop:
-            break
-        time.sleep(3)
+    # Simulate high quality production: 95% good, 5% bad
+    is_good = random.random() < 0.95
+    
+    data = {
+        "class": "good" if is_good else "bad",
+        "confidence": round(random.uniform(0.85, 0.99), 2)
+    }
+    
+    print(f"[Machine {machine_id}] CAMERA (Inspection): ", data)
+    mqtt_client.publish(topic, json.dumps(data))

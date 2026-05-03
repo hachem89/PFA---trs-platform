@@ -50,4 +50,19 @@ services:
       - ../.env
     depends_on:
       - ingestion-service
+
+  kpi-service:
+    build:
+      context: ..
+      dockerfile: services/kpi-service/Dockerfile
+    container_name: kpi-service
+    ports:
+      - "5002:5002"
+    env_file:
+      - ../.env
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - ingestion-service
     

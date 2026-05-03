@@ -8,11 +8,11 @@ def create_app():
 
     db.init_app(app)
 
-    from kpi_engine import kpi_engine_bp
+    # Import and register blueprints
+    from app.kpi_engine import kpi_engine_bp
     app.register_blueprint(kpi_engine_bp)
 
     return app
-
 
 app = create_app()
 

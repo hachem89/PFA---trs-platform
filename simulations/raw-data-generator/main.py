@@ -1,6 +1,9 @@
 import os
 import time
+import random
 import threading
+import json
+import paho.mqtt.client as mqtt
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
@@ -20,54 +23,85 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
-def simulate_machine(client_id, factory_id, machine_id, stop_event):
-    """Runs a dedicated simulation loop for a single machine."""
-    print(f"DEBUG: Starting simulation thread for Machine {machine_id}")
+def simulate_machine(client_id, factory_id, machine_id, tc, stop_event):
+    """Runs a coordinated simulation loop adjusted to the machine's theoretical speed."""
+    print(f"DEBUG: Starting dynamic simulation for Machine {machine_id} (Tc={tc}s)")
+    
+    local_client = mqtt.Client()
+    try:
+        local_client.connect("mqtt", 1883, 60)
+        local_client.loop_start()
+    except Exception as e:
+        print(f"CRITICAL: Machine {machine_id} could not connect to MQTT: {e}")
+        return
+
     while not stop_event.is_set():
         try:
-            # We call each generator once per loop (non-blocking)
-            run_distance(client_id, factory_id, machine_id)
-            run_camera(client_id, factory_id, machine_id)
-            run_vibration(client_id, factory_id, machine_id)
+            # 1. State Decision (95% chance of running)
+            is_running = random.random() < 0.95
+            
+            if is_running:
+                # A. Send 'High' Vibration
+                run_vibration(client_id, factory_id, machine_id, local_client, is_running=True)
+                
+                # B. RESET Distance Sensor
+                local_client.publish(f"client/{client_id}/factory/{factory_id}/machine/{machine_id}/distance", 
+                                     json.dumps({"distance": 30}))
+                time.sleep(0.3)
+                
+                # C. TRIGGER Piece Detection
+                run_distance(client_id, factory_id, machine_id, local_client)
+                time.sleep(0.3)
+                
+                # D. Send Inspection
+                run_camera(client_id, factory_id, machine_id, local_client)
+                
+                # E. WAIT based on Theoretical Cycle Time (Tc)
+                # To get ~90% Performance, we produce at a rate slightly slower than Tc
+                # Total overhead so far is 0.6s
+                target_cycle = tc * random.uniform(1.05, 1.15)
+                wait_time = max(0.1, target_cycle - 0.6)
+                time.sleep(wait_time)
+            else:
+                # Machine is 'Stopped'
+                run_vibration(client_id, factory_id, machine_id, local_client, is_running=False)
+                time.sleep(tc or 2.0) # Wait a bit before checking state again
+                
         except Exception as e:
             print(f"ERROR in Machine {machine_id} thread: {e}")
-            
-        time.sleep(3) # Frequency of the simulation for this machine
     
-    print(f"DEBUG: Stopping simulation thread for Machine {machine_id} (Machine deleted)")
+    local_client.loop_stop()
+    local_client.disconnect()
 
 def main():
     print("LOG: Starting Discovery Loop for Simulation...")
-    # Dictionary to track active threads: {machine_id: stop_event}
     active_simulations = {}
     
     while True:
         try:
             db = SessionLocal()
-            # Fetch all machines currently in the database
             machines_with_clients = db.query(Machine, Factory.client_id).join(Factory).all()
             db.close()
             
-            print(f"LOG: Discovery Loop - Found {len(machines_with_clients)} machines in DB.")
-            
             current_machine_ids = {str(m[0].id) for m in machines_with_clients}
             
-            # 1. STOP simulations for machines that were deleted
+            # 1. STOP deleted machines
             for machine_id in list(active_simulations.keys()):
                 if machine_id not in current_machine_ids:
-                    print(f"LOG: Machine {machine_id} no longer in DB. Stopping simulation...")
-                    active_simulations[machine_id].set() # Signal thread to stop
+                    active_simulations[machine_id].set()
                     del active_simulations[machine_id]
             
-            # 2. START simulations for new machines
+            # 2. START/UPDATE machines
             for machine, client_id in machines_with_clients:
                 m_id = str(machine.id)
+                tc = machine.theoretical_cycle_time or 2.0 # Default to 2s if not set
+                
                 if m_id not in active_simulations:
-                    print(f"LOG: Starting simulation for Machine {m_id} (Client: {client_id})")
+                    print(f"LOG: Starting simulation for Machine {m_id} (Tc={tc}s)")
                     stop_event = threading.Event()
                     thread = threading.Thread(
                         target=simulate_machine, 
-                        args=(str(client_id), str(machine.factory_id), m_id, stop_event),
+                        args=(str(client_id), str(machine.factory_id), m_id, tc, stop_event),
                         daemon=True
                     )
                     thread.start()
@@ -76,7 +110,7 @@ def main():
         except Exception as e:
             print(f"ERROR in discovery loop: {e}")
             
-        time.sleep(20) # Check for DB changes every 20 seconds
+        time.sleep(20)
 
 if __name__ == "__main__":
     main()

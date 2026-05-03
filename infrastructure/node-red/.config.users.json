@@ -24,11 +24,12 @@
             }
         },
         "debug": {
-            "filter": "filterSelected",
+            "filter": "filterAll",
             "filteredNodes": [
-                "8541d211a862e12a"
+                "8541d211a862e12a",
+                "0aea45d942fb5946"
             ]
         },
-        "menu-menu-item-palette": false
+        "menu-menu-item-palette": true
     }
 }

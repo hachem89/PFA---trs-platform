@@ -14,11 +14,12 @@ This plan adapts to the existing file structure found in `services/kpi-service/`
 ### [KPI Service] (services/kpi-service/)
 
 #### [MODIFY] [kpi_engine.py](file:///c:/Users/user/Desktop/PFA%20-%20trs%20platform/services/kpi-service/app/kpi_engine.py)
-This will host the `calculate_window_kpis` function:
-- Computes **TDO** (Availability) by accumulating running time intervals.
-- Computes **TP** (Performance) using `total_pieces` and `theoretical_cycle_time`.
-- Computes **TQ** (Quality) using `good_pieces / total_pieces`.
-- Computes **TRS** as the product of the three.
+This will host the `calculate_window_kpis` function using the **Instantaneous (Option B)** approach:
+- **TDO** (Availability) = `runtime_in_window / 300` (window duration in seconds).
+- **TP** (Performance) = `(theoretical_cycle_time * total_pieces) / runtime_in_window`.
+- **TQ** (Quality) = `good_pieces / total_pieces`.
+- **TRS** = `TDO * TP * TQ`.
+- *Note*: If `runtime_in_window` is 0, `TP` will be 0 to avoid division by zero.
 
 #### [MODIFY] [scheduler.py](file:///c:/Users/user/Desktop/PFA%20-%20trs%20platform/services/kpi-service/app/scheduler.py)
 The background loop:
