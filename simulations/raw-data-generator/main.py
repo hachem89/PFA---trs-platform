@@ -48,6 +48,8 @@ def main():
             machines_with_clients = db.query(Machine, Factory.client_id).join(Factory).all()
             db.close()
             
+            print(f"LOG: Discovery Loop - Found {len(machines_with_clients)} machines in DB.")
+            
             current_machine_ids = {str(m[0].id) for m in machines_with_clients}
             
             # 1. STOP simulations for machines that were deleted
@@ -61,6 +63,7 @@ def main():
             for machine, client_id in machines_with_clients:
                 m_id = str(machine.id)
                 if m_id not in active_simulations:
+                    print(f"LOG: Starting simulation for Machine {m_id} (Client: {client_id})")
                     stop_event = threading.Event()
                     thread = threading.Thread(
                         target=simulate_machine, 
@@ -69,7 +72,6 @@ def main():
                     )
                     thread.start()
                     active_simulations[m_id] = stop_event
-                    print(f"LOG: New machine detected. ID: {m_id}")
             
         except Exception as e:
             print(f"ERROR in discovery loop: {e}")

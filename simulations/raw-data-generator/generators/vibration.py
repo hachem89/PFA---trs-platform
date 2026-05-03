@@ -14,6 +14,7 @@ def run_vibration(client_id, factory_id, machine_id, loop=False):
             "vibration": round(random.uniform(0.5, 2.5), 2)
         }
 
+        print(f"[Machine {machine_id}] VIBRATION: ", data)
         mqtt_client.publish(topic, json.dumps(data))
         
         if not loop:

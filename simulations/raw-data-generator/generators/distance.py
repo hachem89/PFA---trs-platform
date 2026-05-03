@@ -14,6 +14,7 @@ def run_distance(client_id, factory_id, machine_id, loop=False):
             "distance": random.randint(5, 30)
         }
 
+        print(f"[Machine {machine_id}] DISTANCE: ", data)
         mqtt_client.publish(topic, json.dumps(data))
         
         if not loop:

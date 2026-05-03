@@ -23,6 +23,7 @@ services:
     container_name: simulation
     environment:
       - GENERATOR_MODE=all
+      - PYTHONUNBUFFERED=1
     env_file:
       - ../.env
     depends_on:
