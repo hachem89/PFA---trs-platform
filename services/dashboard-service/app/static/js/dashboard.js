@@ -129,6 +129,61 @@ function getColor(val) {
     return '#f85149';
 }
 
+// --- Gauge Enhancements Plugin ---
+const gaugePlugin = {
+    id: 'gaugePlugin',
+    afterDatasetsDraw(chart, args, options) {
+        const { ctx, data, chartArea: { top, bottom, left, right, width, height } } = chart;
+        ctx.save();
+
+        const xCenter = chart.getDatasetMeta(0).data[0].x;
+        const yCenter = chart.getDatasetMeta(0).data[0].y;
+        const outerRadius = chart.getDatasetMeta(0).data[0].outerRadius;
+        const innerRadius = chart.getDatasetMeta(0).data[0].innerRadius;
+        const value = data.datasets[0].data[0];
+
+        // 1. Draw graduation ticks (0, 25, 50, 75, 100)
+        const ticks = [0, 25, 50, 75, 100];
+        ctx.strokeStyle = '#8b949e';
+        ctx.lineWidth = 2;
+
+        ticks.forEach(t => {
+            const angle = Math.PI + (t / 100) * Math.PI;
+            const startX = xCenter + Math.cos(angle) * (innerRadius);
+            const startY = yCenter + Math.sin(angle) * (innerRadius);
+            const endX = xCenter + Math.cos(angle) * (innerRadius + 8);
+            const endY = yCenter + Math.sin(angle) * (innerRadius + 8);
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+        });
+
+        // 2. Draw Needle
+        const needleAngle = Math.PI + (value / 100) * Math.PI;
+        ctx.strokeStyle = '#c9d1d9';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(xCenter, yCenter);
+        ctx.lineTo(xCenter + Math.cos(needleAngle) * (innerRadius + 5), yCenter + Math.sin(needleAngle) * (innerRadius + 5));
+        ctx.stroke();
+
+        // 3. Draw Needle Base
+        ctx.fillStyle = '#c9d1d9';
+        ctx.beginPath();
+        ctx.arc(xCenter, yCenter, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+};
+
+// Register plugin globally
+Chart.register(gaugePlugin);
+
 function createBigGauge(id, value) {
     const ctx = document.getElementById(id);
     if (!ctx) return;
@@ -144,6 +199,7 @@ function createBigGauge(id, value) {
         },
         options: {
             responsive: false, maintainAspectRatio: false, cutout: '70%',
+            layout: { padding: { bottom: 10 } },
             plugins: { legend: { display: false }, tooltip: { enabled: false } },
         }
     });
@@ -164,6 +220,7 @@ function createMiniGauge(id, value) {
         },
         options: {
             responsive: false, maintainAspectRatio: false, cutout: '72%',
+            layout: { padding: { bottom: 5 } },
             plugins: { legend: { display: false }, tooltip: { enabled: false } },
         }
     });
